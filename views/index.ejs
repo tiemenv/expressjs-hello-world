@@ -1,0 +1,12 @@
+<% include partials/header %>
+<h1>
+    <%= title %>
+</h1>
+<ul>
+<% objects.forEach((object) => { %>
+    <li>
+        <%= object.objectName %>
+    </li>
+<% }) %>
+</ul>
+<% include partials/footer %>
