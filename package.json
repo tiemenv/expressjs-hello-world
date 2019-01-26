@@ -1,0 +1,15 @@
+{
+  "name": "firstexpressapp",
+  "version": "1.0.0",
+  "description": "First expressJS app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "*",
+    "body-parser": "*"
+  },
+  "author": "Tiemen",
+  "license": "ISC"
+}
