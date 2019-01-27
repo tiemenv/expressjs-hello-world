@@ -9,8 +9,6 @@ const ObjectId = mongojs.ObjectId;
 const app = express();
 const port = 3000;
 
-
-
 //middleware example -> order is important!
 /*
 const logger = function(req, res, next){
@@ -33,22 +31,27 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 //globals
-app.use((req, res, next) => {
-    res.locals.errors = null;
-    next();
-})
+// app.use((req, res, next) => {
+//     res.locals.errors = null;
+//     next();
+// })
 
 //Routes
 app.get('/', (req, res) => {
+    renderIndex(res, []);
+});
+
+function renderIndex(res, errors) {
     //find all
+    console.log("Rendering index with errors: ", errors);
     db.express.find((err, docs) => {
-        let title = "EJS view engine"
         res.render('index', {
-            title: title,
-            objects: docs
+            title: "EJS view engine",
+            objects: docs,
+            errors: errors
         })
     })
-});
+}
 
 app.post('/objects/add', [
     check('objectName').isLength({ min: 5 }).trim().escape().withMessage('Name must be at least 5 characters long'),
@@ -56,13 +59,7 @@ app.post('/objects/add', [
 ], (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        let title = "EJS view engine"
-        return res.render('index', {
-            //TODO: objectExample doesn't exist
-            title: title,
-            objects: objectExample,
-            errors: errors.array()
-        })
+        return renderIndex(res, errors.array());
     }
     //Validation ok!
     let newObject = {
@@ -71,7 +68,7 @@ app.post('/objects/add', [
     }
     console.log("Adding to db: ", newObject);
     db.express.insert(newObject, (err, result) => {
-        if(err){
+        if (err) {
             console.log(err);
         }
         return res.redirect('/');
@@ -79,8 +76,8 @@ app.post('/objects/add', [
 })
 
 app.delete('/objects/delete/:id', (req, res) => {
-    db.express.remove({_id: ObjectId(req.params.id)}, (err) => {
-        if(err){
+    db.express.remove({ _id: ObjectId(req.params.id) }, (err) => {
+        if (err) {
             console.log(err);
         }
         return res.redirect('/');
@@ -89,16 +86,23 @@ app.delete('/objects/delete/:id', (req, res) => {
 });
 
 //TODO: validate input
-app.put('/objects/update/:id', (req, res) => {
+app.put('/objects/update/:id', [
+    check('objectName').isLength({ min: 5 }).trim().escape().withMessage('Name must be at least 5 characters long')
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        console.log("Errors present!", errors.array());
+        return renderIndex(res, errors.array());
+    }
     db.express.findAndModify({
         query: { _id: ObjectId(req.params.id) },
         update: { $set: { objectName: req.body.objectName } },
         new: true
     }, (err) => {
-        if(err){
+        if (err) {
             console.log(err);
         }
-        return res.redirect('/');
+        return renderIndex(res, []);
     })
 });
 
