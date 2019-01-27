@@ -58,6 +58,7 @@ app.post('/objects/add', [
     if (!errors.isEmpty()) {
         let title = "EJS view engine"
         return res.render('index', {
+            //TODO: objectExample doesn't exist
             title: title,
             objects: objectExample,
             errors: errors.array()
@@ -84,6 +85,20 @@ app.delete('/objects/delete/:id', (req, res) => {
         }
         return res.redirect('/');
 
+    })
+});
+
+//TODO: validate input
+app.put('/objects/update/:id', (req, res) => {
+    db.express.findAndModify({
+        query: { _id: ObjectId(req.params.id) },
+        update: { $set: { objectName: req.body.objectName } },
+        new: true
+    }, (err) => {
+        if(err){
+            console.log(err);
+        }
+        return res.redirect('/');
     })
 });
 
