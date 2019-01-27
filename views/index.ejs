@@ -1,4 +1,19 @@
 <% include partials/header %>
+<h1>Add Object</h1>
+<% if(errors != undefined){ %>
+<% errors.forEach((error) => { %>
+    <li>
+    <%= error.msg %>
+    </li>
+<% }) %>
+<% } %>
+<form method='post' action='objects/add'>
+<label>Object Name</label><br>
+<input type='text' name='objectName'><br>
+<label>Object Value</label><br>
+<input type='text' name='objectValue'><br>
+<input type='submit' value='Submit'>
+</form>
 <h1>
     <%= title %>
 </h1>

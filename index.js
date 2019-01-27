@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const { check, validationResult } = require('express-validator/check');
 
 const app = express();
 const port = 3000;
@@ -25,6 +26,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 //static folder middleware
 app.use(express.static(path.join(__dirname, 'public')));
+
+//globals
+app.use((req, res, next) => {
+    res.locals.errors = null;
+    next();
+})
 
 let objectExample = [
     {
@@ -52,6 +59,26 @@ app.get('/', (req, res) => {
         objects: objectExample
     })
 });
+
+app.post('/objects/add', [
+    check('objectName').isLength({min: 5}).trim().escape().withMessage('Name must be at least 5 characters long'),
+    check('objectValue').not().isEmpty().trim().escape().withMessage("Value can't be empty")
+], (req, res) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        let title = "Error on form validation"
+        return res.render('index', {
+            title: title,
+            objects: objectExample,
+            errors: errors.array()
+        })
+    }
+    let newObject = {
+        objectName: req.body.objectName,
+        objectValue: req.body.objectValue
+    }
+    console.log(newObject);
+})
 
 app.listen(port, () => {
     console.log("Server started on port " + port);
