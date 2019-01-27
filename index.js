@@ -2,6 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const { check, validationResult } = require('express-validator/check');
+const mongojs = require('mongojs');
+const db = mongojs('expressapp', ['express']);
 
 const app = express();
 const port = 3000;
@@ -33,40 +35,25 @@ app.use((req, res, next) => {
     next();
 })
 
-let objectExample = [
-    {
-        id: 1,
-        objectName: 'object1',
-        objectValue: 'example1'
-    },
-    {
-        id: 2,
-        objectName: 'object2',
-        objectValue: 'example2'
-    },
-    {
-        id: 3,
-        objectName: 'object3',
-        objectValue: 'example3'
-    }
-]
-
 //Routes
 app.get('/', (req, res) => {
-    let title = "EJS view engine"
-    res.render('index', {
-        title: title,
-        objects: objectExample
+    //find all
+    db.express.find((err, docs) => {
+        let title = "EJS view engine"
+        res.render('index', {
+            title: title,
+            objects: docs
+        })
     })
 });
 
 app.post('/objects/add', [
-    check('objectName').isLength({min: 5}).trim().escape().withMessage('Name must be at least 5 characters long'),
+    check('objectName').isLength({ min: 5 }).trim().escape().withMessage('Name must be at least 5 characters long'),
     check('objectValue').not().isEmpty().trim().escape().withMessage("Value can't be empty")
 ], (req, res) => {
     const errors = validationResult(req);
-    if(!errors.isEmpty()){
-        let title = "Error on form validation"
+    if (!errors.isEmpty()) {
+        let title = "EJS view engine"
         return res.render('index', {
             title: title,
             objects: objectExample,
