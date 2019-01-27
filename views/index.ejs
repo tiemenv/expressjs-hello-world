@@ -20,7 +20,7 @@
 <ul>
 <% objects.forEach((object) => { %>
     <li>
-        <%= object.objectName %>
+        <%= object.objectName %> - <a href='#' class='js-delete-object' data-id="<%= object._id %>">Delete</a>
     </li>
 <% }) %>
 </ul>

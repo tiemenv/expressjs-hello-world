@@ -4,9 +4,12 @@ const path = require('path');
 const { check, validationResult } = require('express-validator/check');
 const mongojs = require('mongojs');
 const db = mongojs('expressapp', ['express']);
+const ObjectId = mongojs.ObjectId;
 
 const app = express();
 const port = 3000;
+
+
 
 //middleware example -> order is important!
 /*
@@ -60,12 +63,29 @@ app.post('/objects/add', [
             errors: errors.array()
         })
     }
+    //Validation ok!
     let newObject = {
         objectName: req.body.objectName,
         objectValue: req.body.objectValue
     }
-    console.log(newObject);
+    console.log("Adding to db: ", newObject);
+    db.express.insert(newObject, (err, result) => {
+        if(err){
+            console.log(err);
+        }
+        return res.redirect('/');
+    })
 })
+
+app.delete('/objects/delete/:id', (req, res) => {
+    db.express.remove({_id: ObjectId(req.params.id)}, (err) => {
+        if(err){
+            console.log(err);
+        }
+        return res.redirect('/');
+
+    })
+});
 
 app.listen(port, () => {
     console.log("Server started on port " + port);
